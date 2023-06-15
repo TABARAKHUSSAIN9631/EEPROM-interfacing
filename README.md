@@ -38,11 +38,44 @@ The WP pin, pin 7, is the Write-Protect pin. This pin can enable or disable the 
 The address pins, A0, A1, and A2, which are pins 1, 2, and 3 are all connected to ground. Since they are all grounded, they are all in LOW states. Therefore, the address pins will have a value of 000.The SDA pin, pin 5, of the EEPROM connects to analog pin 4 on the arduino, which is the SDA terminal of the arduino. This is connected via a 10KΩ pull-up resistor.The SCL pin, pin 6, of the EEPROM connects to analog pin 5 on the arduino, which is the SCL terminal of the arduino. This establishes a clock line so that the master and slave device can work in synchrony.The last pin, the WP (or Write Protect) pin connects to ground. Since we want to write to a device in this circuit, we just permanently connect it to ground. In this circuit, we're not interested in disabling the write feature. However, there are times where it may be very necessary. For example, if you've permanently already written your program to EEPROM and you don't want any modifications at all, just the ability to read from the EEPROM, you can disconnect the write feature by permanently tying the WP pin to VCC. Or you can connect it to a digital pin of a micrcontroller, so that you can switch between enabling or disabling it.
 
 ## PROGRAM:
+#include "Wire.h"</br>
+#define EEPROM_I2C_ADDRESS 0x50</br>
+void setup()</br>
+{</br>
+Wire.begin();</br>
+Serial.begin(9600);</br>
+int address = 0;</br>
+byte val = 120;</br>
+writeAddress(address, val);</br>
+byte readVal = readAddress(address);</br>
+Serial.print("The returned value is ");</br>
+Serial.println(readVal);</br>
+}void loop()</br>
+{}void writeAddress(int address, byte val)</br>
+{</br>
+Wire.beginTransmission(EEPROM_I2C_ADDRESS);</br>
+Wire.write((int)(address >> 8)); // MSB</br>
+Wire.write((int)(address & 0xFF)); // LSB</br>
+Wire.write(val);</br>
+Wire.endTransmission();</br>
+delay(5);</br>
+}</br>
+byte readAddress(int address)</br>
+{</br>
+byte rData = 0xFF;</br>
+Wire.beginTransmission(EEPROM_I2C_ADDRESS);</br>
+Wire.write((int)(address >> 8)); // MSB</br>
+Wire.write((int)(address & 0xFF)); // LSB</br>
+Wire.endTransmission();</br>
+Wire.requestFrom(EEPROM_I2C_ADDRESS, 1);</br>
+rData = Wire.read();</br>
+return rData;</br>
+}</br>
 
 ## CIRCUIT DIAGRAM:
-
+![image](https://github.com/AMANKUMAR2541/EEPROM-interfacing/assets/132323363/c2779fd9-509d-4f88-9a8a-a36374664d13)
 ## OUTPUT:
-
+![image](https://github.com/AMANKUMAR2541/EEPROM-interfacing/assets/132323363/e7d6211b-7d08-4067-a31d-a0e485325193)
 ## RESULT:
 
 Thus the data is read from the EEPROM memory using Arduino controller.
